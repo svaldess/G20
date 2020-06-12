@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Project 1</title>
+        <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawData);
+
+        function drawData() {
+            drawSheet('mil_exp_total', 'SELECT A,L', MilMeanResponseHandler);
+            drawSheet('mil_exp_total', 'SELECT A,P,S', GDPScatterResponseHandler);
+            drawSheet('mil_exp_asperc_gdp', 'SELECT A,B,I', MilAsPercGDPResponseHandler);
+            drawSheet('mil_exp_pc', 'SELECT L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE', MilPCResponseHandler);
+            drawSheet('compareAll', 'SELECT A,B,D', HealthMilMeanExpResponseHandler);
+            drawSheet('health_exp_asperc_gdp', 'SELECT A,K', HealthAsPercGDPResponseHandler);
+            drawSheet('percentage_change_pc', 'SELECT A,B,C,D,E', HealthPcPercentualChangeResponseHandler);
+            drawSheet('health_exp_pc', 'SELECT N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE,AF,AG', HealthPcChangeResponseHandler);
+            drawSheet('compareAll', 'SELECT F,H,I', AllResponseHandler);
+            drawSheet('health_private-public_exp_pc', 'SELECT A,K,W', HealthPrivComparisonResponseHandler);
+            drawSheet('life_expectancy', 'SELECT A,L,O,N', LifeExpecResponseHandler);
+            drawSheet('compareAll', 'SELECT R,C,D,Q', MeanExpEmergingResponseHandler);
+            drawSheet('percentage_change_pc', 'SELECT H,I,J,K,L', EduPcPercentualChangeResponseHandler);
+            drawSheet('edu_exp_pc', 'SELECT N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE,AF,AG', EduPcChangeResponseHandler);
+            drawSheet('gdp', 'SELECT AK,AL', GDPbyTypeResponseHandler);
+        } // drawData
+ 
+        function drawSheet(sheetName, query, responseHandler) {
+            var queryString = encodeURIComponent(query);
+            var query = new google.visualization.Query(
+                'https://docs.google.com/spreadsheets/d/1nxMSuz92Kx-hjtQ_vJaMQ0Z_viFeScW1BuwGIUQ7Bso/gviz/tq?sheet=' 
+                        + sheetName + '&headers=1&tq=' + queryString); //Query
+            query.send(responseHandler);
+        } //drawSheet
+
+        // ------------- Charts ---------------
+        function MilMeanResponseHandler(response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+            var options = {
+                colors: ['#cccccc','#222529'], 
+                backgroundColor: '#f8f9fa',
+                legend: {
+                    textStyle: {color: '#222529',bold: true, fontSize:12},
+                    numberFormat: '#.#'
+                }
+            };
+            var chart = new google.visualization.GeoChart(document.getElementById("mil_mean_div"));
+            chart.draw(data, options);
+        } // 1) Map: mean military expenditure of G20 countries (2010-2017)
+
+        function GDPScatterResponseHandler(response){
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: false});
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'How many times does the U.S. spend more on the military sector with respect to other countries from the G20?',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#222529','#69c78a'],
+                backgroundColor: '#f8f9fa',
+                vAxis: {
+                    logScale: true,
+                    viewWindowMode:'pretty',
+                    title: "x times more",
+                    direction:-1
+                    }, //textPosition:'none'
+                legend: {
+                    textStyle:{
+                        color: '#222529',
+                        bold:true,
+                        fontSize:11
+                    }
+                },
+            };
+            var chart = new google.visualization.ScatterChart(document.getElementById('mean_ratio_mil_div'));
+            chart.draw(data, options);
+        } //2) Scatter: mean ratio of military spending with respect to the US. (2010-2017)
+
+        function MilAsPercGDPResponseHandler(response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'Military spending of G20 as percentage of GDP in 2010 and 2017',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#69c78a','#222529'], 
+                backgroundColor: '#f8f9fa', 
+                vAxis: {
+                    title: 'Percentage',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                },  
+                hAxis: {
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                },
+                legend: {
+                    textStyle:{
+                        color: '#222529',
+                        bold:true,
+                        fontSize:11
+                    }
+                },
+            };
+            var chart = new google.visualization.ColumnChart(document.getElementById("mil_asperc_GDP_div"));
+            chart.draw(data, options);
+        } // 3) Double Bars: Military expenditure as percentage of GDP 
+        
+        function MilPCResponseHandler(response) {
+            var data = response.getDataTable();
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'Military spending per person of G20 (2010-2017)',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#2afa7a','#434a45','#2afa7a','#434a45','#d13d3d','#434a45','#434a45',
+                '#2afa7a','#2afa7a','#434a45','#434a45','#2afa7a','#2afa7a','#2afa7a','#2afa7a',
+                '#2afa7a','#434a45','#434a45','#2afa7a'], // #9c7605
+                backgroundColor: '#f8f9fa', 
+                vAxis: {
+                    title: 'Current USD',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                    minorGridlines: {count:0},
+                    gridlines: {color:'#e8e8e8'}
+                },
+                hAxis: {
+                    format: '####',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                    minorGridlines: {count:0}
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:10.5
+                    }
+                },
+            };
+            var chart = new google.visualization.LineChart(document.getElementById("mil_pc_div"));
+            chart.draw(data, options);
+        } // 4) Lines: Per capita military expenditure 2012-2018 
+
+        function HealthMilMeanExpResponseHandler(response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'Average health and military spending of G20 (2010-2017)',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#69c78a','#222529'],
+                vAxis: {
+                    title: 'USD Billions (log scale)',
+                    //format: 'short',
+                    scaleType: 'log',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                },
+                hAxis: {
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:11
+                    }
+                },
+            };
+            var chart = new google.visualization.AreaChart(document.getElementById("health_mean_div"));
+            chart.draw(data, options);
+        } // 5) Lines-log: average expenditure on health 2012-2016
+
+        function HealthAsPercGDPResponseHandler (response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+            var options = {
+                chartArea:{width:'75%',height:'75%'},
+                title: 'Average health spending as percentage of GDP of G20 (2010-2017)',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#222529'],
+                dataOpacity: .95,
+                vAxis: {
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                    maxValue: 18.0
+                },  
+                hAxis: {
+                    textPosition: 'none',
+                    title: 'Percentage',   
+                },
+                legend: 'none',
+            };
+            
+            var view = new google.visualization.DataView(data);
+            view.setColumns([0, 1,{ 
+                calc: "stringify",
+                sourceColumn: 1,
+                type: "string",
+                role: "annotation" }]);
+        
+            var chart = new google.visualization.BarChart(document.getElementById("health_asperc_GDP_div"));
+            chart.draw(view, options);
+        } // 6) Bars: Average health expenditure as percentage of GDP (2011-2016)
+
+        function HealthPcPercentualChangeResponseHandler (response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+            var options = { 
+                chartArea:{width:'75%',height:'65%'},
+                title: "Percentage change on health expenditure as percentage of GDP of G20 (2017 with respect to 2010)",
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                bar: { groupWidth: '75%' },
+                candlestick: {
+                    fallingColor: { strokeWidth: 0, fill: '#d13d3d' }, // red
+                    risingColor: { strokeWidth: 0, fill: '#69c78a' }   // green
+                },
+                vAxis: {
+                    title: 'Percentage change',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                },
+                hAxis: {
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                },
+                legend:'none',
+            };
+            var chart = new google.visualization.CandlestickChart(document.getElementById('health_pc_perc_change_div'));
+            chart.draw(data, options);
+        } // 8) Waterfall: Percentage change on Health Expenditure
+
+        function HealthPcChangeResponseHandler (response) {
+            var data = response.getDataTable();
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'Health Expenditure per person of G-20 (from 2010 to 2017)',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#2afa7a','#434a45','#2afa7a','#434a45','#2afa7a','#434a45','#434a45',
+                '#2afa7a','#2afa7a','#434a45','#434a45','#2afa7a','#2afa7a','#2afa7a','#2afa7a',
+                '#2afa7a','#434a45','#434a45','#2afa7a'], //'#2afa7a' emerging //'#434a45' developed
+                vAxis: {
+                    title: 'Current USD',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                    minorGridlines: {count:0},
+                    gridlines: {color:'#e8e8e8'}
+                },
+                hAxis: {
+                    format: '####',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                    minorGridlines: {count:0}
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:10.5
+                    }
+                },
+            };
+            var chart = new google.visualization.LineChart(document.getElementById("health_pc_abs_change_div"));
+            chart.draw(data, options);
+        } // 7) Lines: Change on health expenditure 2010-2017 (absolute values)  
+
+        function HealthPrivComparisonResponseHandler (response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'Average private and public spending per person on health of G20 (2010-2017)' ,
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                connectSteps: false,
+                colors: ['#222529','#69c78a'],
+                vAxis: {
+                    title: "Percentage",
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                },
+                hAxis: {
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:11
+                    },
+                },
+                isStacked: true,
+            };
+            var chart = new google.visualization.SteppedAreaChart(document.getElementById('pri_pub_health_div'));
+            chart.draw(data, options);
+        } // 9) Stepped Area: comparison between public and private health spending
+
+        
+        function LifeExpecResponseHandler (response) {
+            var data = response.getDataTable();
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: "Life expectancy in 2018 vs Average public health spending per person of G20 from 2010 to 2017",
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#222529'],
+                colors: ['#222529','#69c78a','#bf9a2a','#d13d3d'],
+                vAxis: {
+                    title: "Percentage",
+                    minValue: -10,
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                    minValue: 0,
+                },
+                hAxis: {
+                    title: "Life expectancy",
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                },
+                bubble: {
+                    textStyle: {
+                    auraColor: 'none',
+                    fontSize: 12,
+                    bold: true,
+                    color: 'white',
+                    },
+                    opacity: .6,
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:11
+                    },
+                },
+                //explorer: { 
+                 //   axis: 'horizontal',
+                 //   keepInBounds: true,
+                 //   maxZoomIn: .5,
+                 //   maxZoomOut: .8,
+                //},
+            };
+            var chart = new google.visualization.BubbleChart(document.getElementById('bubbles_health_div'));
+            chart.draw(data, options);    
+        } // 10) Bubbles: life expectancy vs public health spending p/c (2017)
+        
+
+        function MeanExpEmergingResponseHandler (response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: "Average expenditure on education vs military of G20 (2010-2017)",
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#bf9a2a','#69c78a','#d13d3d','#222529'], //#fdc92b
+                backgroundColor: '#f8f9fa',
+                vAxis: {
+                    title: "Military Expenditure in USD Billions (log scale)",
+                    logScale: true,
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,              
+                    },
+                },
+                hAxis: {
+                    title: "Education Expenditure in USD Billions (log scale)",
+                    logScale: true,
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:11
+                    },
+                },
+                bubble: {
+                    textStyle: {
+                    auraColor: 'none',
+                    fontSize: 12,
+                    bold: true,
+                    color: 'white',
+                    },
+                    opacity: .6,
+                },
+                //bar: {groupWidth: '75%'},
+                //isStacked: true
+            };
+            var chart = new google.visualization.BubbleChart(document.getElementById('edu_mil_compared_div'));
+            chart.draw(data, options);
+        } // 11) Bubbles: Expenditure on Education vs military 
+
+        function AllResponseHandler (response) {
+            var data = response.getDataTable();
+            data.sort({column: 1, desc: true});
+
+            var options = {
+                chartArea:{width:'75%',height:'75%'},
+                title: 'Average spending as percentage of GDP on education and military sectors (2010-2017)',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#222529','#69c78a'], //  ['#d9d9d9','#69c78a','#4a5c50']
+                backgroundColor: '#f8f9fa', //'#222529'
+                //dataOpacity: .75,
+                vAxis: {
+                    textStyle: {
+                        fontSize: 12,
+                        //color: '#fff',
+                        bold: true,
+                    },
+                },
+                hAxis: {
+                    title: 'Current USD (per capita)',
+                    //titleTextStyle: {color: 'white'},
+                    textStyle: {fontSize: 12, color:  '#28302b', bold:true},
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:10.5,
+                        //color: '#fff',
+                    }
+                },
+                isStacked: true,
+            };
+
+            var chart = new google.visualization.BarChart(document.getElementById('compare_all_div'));
+            chart.draw(data, options);
+        } // 12) Comparison between education and military per capita expenditure, average spending 2012-2016
+
+        function EduPcPercentualChangeResponseHandler (response) {
+            //data.sort({column: 4, desc: true});
+            var data = response.getDataTable();
+            var options = { 
+                chartArea:{width:'75%',height:'65%'},
+                title: "Change on education spending as percentage of GDP of G20 (2010-2016)",
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                backgroundColor: '#f8f9fa',
+                bar: { groupWidth: '75%' },
+                candlestick: {
+                    fallingColor: { strokeWidth: 0, fill: '#d13d3d' }, // red
+                    risingColor: { strokeWidth: 0, fill: '#69c78a' }   // green
+                },
+                vAxis: {
+                    title: 'Percentage',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                },
+                hAxis: {
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                },
+                legend:'none',
+            };
+            var chart = new google.visualization.CandlestickChart(document.getElementById('edu_pc_perc_change_div'));
+            chart.draw(data, options);
+        } // 14) Waterfall: Percentage change on Education Expenditure
+
+        function EduPcChangeResponseHandler (response) {
+            var data = response.getDataTable();
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'Education expenditure per person of G-20 (from 2010 to 2016)',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#2afa7a','#434a45','#2afa7a','#434a45','#2afa7a','#434a45','#434a45',
+                '#2afa7a','#2afa7a','#434a45','#434a45','#2afa7a','#2afa7a','#2afa7a','#2afa7a',
+                '#2afa7a','#434a45','#434a45','#2afa7a'], //'#2afa7a' emerging //'#434a45' developed
+                backgroundColor: '#f8f9fa',
+                vAxis: {
+                    title: 'Current USD',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                    },
+                    minorGridlines: {count:0},
+                    gridlines: {color:'#e8e8e8'}
+                },
+                hAxis: {
+                    format: '####',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#28302b',
+                        bold: true,
+                    },
+                    minorGridlines: {count:0}
+                },
+                legend: {
+                    textStyle:{
+                        bold:true,
+                        fontSize:10.5
+                    }
+                },
+            };
+            var chart = new google.visualization.LineChart(document.getElementById("edu_pc_abs_change_div"));
+            chart.draw(data, options);
+        } // 13) Lines: Change on education expenditure 2010-2017 (absolute values)  
+    
+        function GDPbyTypeResponseHandler (response) {
+            var data = response.getDataTable();
+            var options = {
+                chartArea:{width:'75%',height:'65%'},
+                title: 'GDP of emerging (green) and developed (black) economis of G20 (2018)',
+                titleTextStyle: {color: '#222529', bold: true, fontSize: 18},
+                colors: ['#4ac274','#8dc4a1','#8dc4a1','#8dc4a1','#8dc4a1','#8dc4a1','#8dc4a1','#8dc4a1',
+                '#8dc4a1','#8dc4a1','#8dc4a1','#595d63','#595d63','#595d63','#595d63','#595d63','#595d63',
+                '#595d63','#222529'],
+                pieSliceText: 'label', 
+                legend:'none'
+            };
+            var chart = new google.visualization.PieChart(document.getElementById('gdp2018_div'));
+            chart.draw(data, options);
+        } // Pie: GDP by country on 2018
+        </script>
+
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+            <div class="container">
+                <a class="navbar-brand js-scroll-trigger" href="#page-top">GWU | DATS-6401</a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">Menu<i class="fas fa-bars ml-1"></i></button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav text-uppercase ml-auto">
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#intro">Intro</a></li>
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#military">Military</a></li>
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#health">Health</a></li>
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#education">Education</a></li>
+                        <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#ending">Conclusions</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Masthead-->
+        <header class="masthead">
+            <div class="container">
+                <div class="masthead-heading text-uppercase">Military, Health and Education Expenditure of the G20</div>
+                <div class="masthead-subheading">By Sandra Valdés Salas</div>
+                <!-- <a class="btn btn-primary btn-xl text-uppercase js-scroll-trigger" href="#cv">Let´s start!</a> -->
+            </div>
+        </header>
+        <!--Introduction-->
+        <section class="page-section" id="intro">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Introduction</h2>
+                    <p>
+                        In 2010, the GDP of emerging economies of the G20 represented 33% of the total GDP of all G20 countries. 
+                        By the end of the decade, in 2018, <strong>emerging economies contributed with 39% of the total GDP of the G20 </strong>(which represented 66.5 trillion USD). 
+                        China's economic growth was responsible for most of this change: in 2018, China's GDP mounted to 13.6 trillion USD. 
+                        Nonetheless, other emerging economies have grew abruptly between 2010 and 2018, as is the case of India,
+                        South Korea (with an economic growth of 49% and 35% respectively), as well as Saudi Arabia and Indonesia (with an economic growth of 17%).
+                    </p>
+                    <div class="chart_box">
+                        <div id="gdp2018_div"  style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        Overall, the economic breach between emerging and developed economies showed a reduction during the 2010s. 
+                        For this reason, we will take a look at the major trends of the G20 economies 
+                        with regards to expenditure on <strong>military, health, and education</strong> between 2010 and 2017. Our aim is not only to 
+                        identify the main differences between emerging and developed economies, 
+                        but also <strong>to understand which can be the main drivers of growth during this decade.</strong>                   
+                    </p>
+                </div>  
+            </div>
+        </section>
+        <!--Military-->
+        <section class="page-section bg-light" id="military">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Military Expenditure</h2>
+                    <h5>Average Military Spending of the G20 (2010-2017)</h5>
+                    <div class="chart_box">
+                        <div id="mil_mean_div"  style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <br>
+                    <p>
+                        The United States has the largest military expenditure. Over an 8-year period (2010-2017), the U.S. spent,
+                        on average, 643 billion USD, followed by 
+                        China (which have spent, for the same period, 181 billion USD on military sector), Russia (with 73.2 billion USD),
+                        and Saudi Arabia (with 64.9 billion USD).
+                    </p>
+                    <p>
+                        Although the U.S. military expenditure is still, by far, the highest,  
+                        the gap between the U.S. and other emerging economies has been getting smaller with regards to military expenditure.
+                        For instance, on 2010, the american country spent 6 times more than China on the military sector. But, in 2017, the U.S. only spent 
+                        2.7 times more than the chinese country (see below).
+                    </p>
+                    <div class="chart_box">
+                        <div id="mean_ratio_mil_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <br>
+                    <h3>Absolute numbers can be deceiving...</h3>
+                    <h4>...let´s take a look at relative values.</h4>
+                    <br>
+                    <div class="chart_box">
+                        <div id="mil_asperc_GDP_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        When compared to each country's GDP, Saudi Arabia has the largest military spending. And it´s increasing! 
+                        Between 2010 and 2017, Saudi Arabia's military expenditure as a percentage of GDP grew 1.7 percentage points. 
+                        
+                        Conversely, over the same 8-year period, the U.S decreased its military expenditure as a percentage of GDP by   
+                        almost the same proportion (-1.6 points).  
+                    </p>
+                    <div class="chart_box">
+                        <div id="mil_pc_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        During the 2010s, emerging economies (in green) have spent less in military resources per person than developed economies (in gray) with few exceptions. 
+                        Saudi Arabia became the country with the largest military per capita expenditure after 2012, surpassing the U.S. 
+                    
+                        Of course, with a population of only 33.7 million people, Saudis can easily increase their per capita expenditure, 
+                        while the U.S. might struggle with its population of 326 million people. 
+                    </p>
+                    <p>
+                        China remains among the countries of the bottom.
+                        With a population of more than 1,000 million people, is not surprising that China's military spending has been 
+                        less the 200 USD per person. 
+                    </p>
+                </div>
+            </div>
+        </section>
+        <!--Health-->
+        <section class="page-section" id="health">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Health Expenditure</h2>                
+                    <h3>Let´s take a look at trends on health.</h3>
+                    <div class="chart_box">
+                        <div id="health_mean_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>When it comes to health expenditure, the U.S. is once again the country with 
+                        the largest figure in absolute terms.
+                        Overall, G20 countries spend more on health than on military resources with 
+                        the clear exception of Saudi Arabia that spends more on the military sector.
+                    </p>
+
+                    <div class="chart_box">
+                        <div id="health_asperc_GDP_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        There is a clear division between emerging and developed economies of the G20 when it comes to
+                        health spending during the 2010s: all 
+                        developed economies tend to allocate a higher percentage of GDP on health than the emerging economies.
+                        This has not only been a constant during the 2010s. But also, there is a clear division when it comes to per capita spending (see below). 
+                    </p>  
+                    <div class="chart_box">
+                        <div id="health_pc_abs_change_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        In terms of per capita spending on health, emerging economies (in green) have remained in the bottom during the 2010s, whereas developed economies (in gray) 
+                        have remained above, with the U.S. floating far on the top. 
+                    </p>
+                    <h3>The good news...</h3>
+                    <h5>most G20 economies have increased their spending on health.</h5>  
+                    <div class="chart_box">
+                        <div id="health_pc_perc_change_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        Saudi Arabia and economies in Asia-Pacific increased their spending on health as a share of their GDP.
+                        Tragically, Mexico and Turkey have decided to go in the opposite direction.  
+                    </p>
+                    <h3>Public or private spending?</h3>
+                    <h5>Let´s take a look at private and public spending trends and its effects on health.</h5>
+                    <div class="chart_box">
+                        <div id="pri_pub_health_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        There is no rule set on stone when it comes to public and private spending per person among the G20 during the 2010s.
+                        On the one hand, more than 3/4 of health expenditure per person in Japan and Europe comes from public resources. 
+                        On the other hand, more than half of health expenditure per person in India, Indonesia, Brazil and the U.S. comes from the private sector.
+                        What would be better for the population? 
+                    </p>
+                    <div class="chart_box">
+                        <div id="bubbles_health_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        We can see a slight correlation between life expectancy and per person public spending on health. 
+                        In those countries where the government spent, on average between 2010 and 2017), more on health per person than the private sector,
+                        life expectancy is higher. Take for instance the top 5 countries 
+                        with the largest share of per capita health expenditure
+                        financed by the public sector (in yellow) versus the top 5 countries with the largest share of per capita health expenditure
+                        financed by the private sector (in green).
+                    </p>
+                    
+                </div>
+            </div>
+        </section>
+        <!--Education-->
+        <section class="page-section bg-light" id="education">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">Education Expenditure</h2>
+                    <h3>Finally, let's talk about education.</h3>
+                    <small>
+                        Note about the data: 
+                        Most of the data includes indicators from 2010 to 2016. 
+                        The missing figures on 2017 were calculated based on the average of the two previous years. 
+                        Please take a look at my Methodology Notes at the bottom of this page. 
+                    </small>
+                    <div class="chart_box">
+                        <div id="edu_mil_compared_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <small>
+                        Note: Saudi Arabia's indicators on education are based on the latest year available, 2006.
+                    </small>
+                    <p>
+                        Overall, G20 countries have spent, on average, more on education than the military sector from 2010 to 2017, with few exceptions like Russia. The rest of the economies have spent: a) a lot more on education (with a difference of
+                        more than a 100 USD billions), b) more on education (with a difference of more than 50 USD billions but less than 100), or c) similar figures 
+                        with a difference of less than a 50 USD billions). Let's take a closer look at differences among developed and emerging economies (see below). 
+                    </p>
+                    <br>
+                    <div class="chart_box">
+                        <div id="compare_all_div" style="width: 900px; height: 500px;"></div>
+                    </div>             
+                    <p>                        
+                        When analyzing education expenditure as a percentage of GDP, 
+                        surprisingly, the top  countries with the largest figures are emerging economies: South Africa and Brazil.
+                        However, with an approximate GDP per capita of 6,000 and 11,000 USD respectively, education expenditure of the these countries becomes irrelevant (see below).
+                    </p>
+                    <div class="chart_box">
+                        <div id="edu_pc_abs_change_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        Education spending per person follows a similar pattern to what we saw with health:
+                        emerging economies (in green) appear at the bottom, whereas developed economies (in gray) tend to spend more on education per person.  
+                        As opposed to the military and health sectors, Australia champions on education expenditure per person. 
+                    </p>
+                    <h3>The bad news...</h3>
+                    <h5>education has not been a priority for most of the G20 countries.</h5> 
+                    <div class="chart_box">
+                        <div id="edu_pc_perc_change_div" style="width: 900px; height: 500px;"></div>
+                    </div>
+                    <p>
+                        Overall, education expenditure as a percentage of GDP has decreased among the G20 countries.
+                        However, on a more positive tone, most emerging economies (with the exception of China, Mexico, and Russia) have allocated 
+                        a larger percentage of their GDP to the education sector.
+                    </p>  
+                </div>
+            </div>
+        </section>
+        <!--SumUp-->
+        <section class="page-section" id="ending">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">To sum up...</h2>
+                    <br>
+                    <h4 class="white">The Facts</h4>
+                    <p class="white">
+                        Overall, the U.S. spends a lot of money on the military sector, but Saudi Arabia spends the most on the military resources per person.
+                        The U.S. is the undisputable champion on health: the american country spends the most in absolute terms, per person, and as a percentage of GDP.
+                        Intersetingly, public spending on health seems to matter. 
+                        Finally, Australia is the leader when it comes to spending on education per person.
+                    </p>
+                    <h4 class="white">The Bad News</h4>
+                    <p class="white">
+                        Some emerging countries (China, Russia, Saudi Arabia) are getting closer to the U.S. in terms of overall military spending.
+                        The worse is that education has not been priority for most of the countries of the G20. 
+                    </p>
+                    <h4 class="white">The Good News</h4>
+                    <p class="white">
+                        The U.S. has decreased its military expenditure as a percentage of GDP between 2010 and 2017. 
+                        During this decade, most countries increased their percentage of GDP allocated to health expenditure.
+                    </p>
+                    <p class="white">
+                        The fastest growing economies among the emerging countries 
+                        (Saudi Arabia, China, and South Korea), increased their expenditure on health
+                        as a percentage of GDP in more than 20% during the decade. <em>This tells us about the importance of health on economic growth 
+                            for emerging economies of the G20.</em>
+                    </p>
+                </div>
+            </div>
+        </section>
+        <!--Notes-->
+        <section class="page-section" id="notes">
+            <div class="container">
+                <h3 class="section-heading text-uppercase">Sources</h2>
+                    <h5>The World Bank:</h5>
+                    <a href="https://data.worldbank.org/"> Open Data</a>
+                    <ul>
+                        <li><b>Gross Domestic Product indicators from 2010 to 2018: </b> Total GDP and Per capita GDP.</li>
+                        <li><b>Population indicators from 2010 to 2018: </b> Total population.</li>
+                        <li><b>Military indicators from 2010 to 2017: </b> Total expenditure, Expenditure as percentage of GDP, Expenditure per person.</li>
+                        <li><b>Health indicators from 2010 to 2017: </b> Total expenditure, Expenditure as percentage of GDP, Expenditure per person.</li>
+                        <li><b>Education indicators from 2010 to 2017 or latest available: </b> Total expenditure, Expenditure as percentage of GDP, Expenditure per person.</li>
+                    </ul> 
+                    <h5>Organisation for Economic Co-operation and Development:</h5>
+                    <a href="https://data.worldbank.org/"> Open Data</a>
+                    <ul>
+                        <li><b>Education indicators from 2010 to 2015 of Canada, France, Japan, Turkey, United States and South Korea: </b> Expenditure as percentage of GDP.</li>
+                    </ul> 
+                    <h5>China Statistical Buraeu of information:</h5>
+                    <a href="http://www.stats.gov.cn/english/Statisticaldata/AnnualData/"> Government statistics</a>
+                    <ul>
+                        <li><b>2018 Statistical Yearbook</b> Net Enrolment Rate and Public Expenditure for Education.</li>
+                    </ul> 
+                </div>
+            </div>
+            <br>
+            <div class="container">
+                <h3 class="section-heading text-uppercase">Methodology Notes</h3>
+                <h5>G20 countries:</h5>
+                <ul>
+                    <li><b>Developed economies:</b> Australia (AU), Canada (CA), Germany (DE), France (FR), Italy (IT), Japan (JA), United Kingdom (GB), United Stated (US).</li>
+                    <li><b>Emerging economies: </b>Argentina (AR), Brazil (BR), China (CH), India (IN), Indonesia (ID), Mexico (MX), Russian Federation/ Russia (RU), Saudi Arabia (SA), South Africa (ZA), Turkey (TU), Republic of Korea/ South Korea (SK).</li>
+                </ul>
+                <h5>About education indicators:</h5>
+                <p>
+                    Education figures were obtained, mainly, from the World Bank Open Data website.
+                    Most of the figures included data from 2010 to 2016 for the majority of the countries. 
+                    The WB data does not include the following countries: Canada, France, Japan, Turkey, the Republic of Korea, China, and Saudi Arabia.
+                    The data for those countries was obtained from the Organisation for Economic Co-operation and Development (OECD) Open Data website.
+                    The data from China was obtained from government statistics. Saudi Arabia is the only country with no available data after 2010.
+                </p>
+                <p>
+                    Once all the data was retrieved from multiple sources, the missing figures were calculated based on the average of the two previous years.
+                    In the case of Saudi Arabia, the latest available figure (2006) was used as an approximation. For this reason, in some graphs, Saudi Arabia was ommitted.
+                </p>
+                <p>
+                    This HTML is based on one of 
+                    <a href="https://startbootstrap.com/themes/">Bootstrap Templates.</a>
+                    
+                </p>
+            </div>
+        </section>
+
+        <!--Footer-->
+        <footer class="footer py-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 text-lg-left">Copyright &copy; </div>
+                    <div class="col-lg-4 my-3 my-lg-0">
+                        <a class="btn btn-dark btn-social mx-2" href="https://github.com/svaldess"><i class="fab fa-github"></i></a><a class="btn btn-dark btn-social mx-2" href="https://www.linkedin.com/in/sandra-valdes/"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                    <div class="col-lg-4 text-lg-right"><a href="http://validator.w3.org/check?uri=referer">HTML5</a> | <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS3</a> </div>
+                </div>
+            </div>
+        </footer>
+        
+        <!-- Bootstrap core JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+        <!-- Third party plugin JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>
